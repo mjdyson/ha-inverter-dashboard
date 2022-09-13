@@ -1,0 +1,27 @@
+- alias: Change Utility Tariffs to peak or offpeak
+  trigger:
+  - platform: time
+    at: 04:30:00
+    variables:
+      tariff: peak
+  - platform: time
+    at: 0:30:00
+    variables:
+      tariff: offpeak
+  action:
+  - service: select.select_option
+    target:
+      entity_id: select.daily_energy
+    data:
+      option: '{{ tariff }}'
+  - service: select.select_option
+    target:
+      entity_id: select.monthly_energy
+    data:
+      option: '{{ tariff }}'
+  - service: select.select_option
+    target:
+      entity_id: select.yearly_energy
+    data:
+      option: '{{ tariff }}'
+  mode: single
