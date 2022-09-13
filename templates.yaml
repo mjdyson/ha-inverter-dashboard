@@ -1,0 +1,98 @@
+# Example configuration entry
+sensor:
+  # Keep track how many days have past since a date
+  - name: Octopus Go Rate Import
+    state: >-
+      {% if (states.sensor.time.state >= '00:30') and (states.sensor.time.state < '04:30') %}
+        0.075
+      {% else %}
+        0.3984
+      {% endif %}
+    unit_of_measurement: "GBP/kWh"
+  - name: Octopus Go Rate Export
+    state: >-
+      0.05
+    unit_of_measurement: "GBP/kWh"
+  - name: Octopus Gas Price
+    state: >-
+      0.0729
+    unit_of_measurement: "GBP/m³"
+  - name: time_until_go
+    state: >-
+      {% set delta = (((now().replace(hour=0, minute=30, second=0) + timedelta(days=1 if not (0 <= now().hour < 1 and now().minute < 30) else 0)) - now())|string).split(':') %}
+      {{ delta[0] ~ ":" ~ delta[1] }}
+  - name: total_solar_forecast_today
+    unit_of_measurement: "kWh"
+    state: >-
+      {{ states.sensor.energy_production_today_2.state | float + states.sensor.energy_production_today.state | float }}
+  - name: Load Power Calc
+    unit_of_measurement: "W"
+    state: >-
+      {{ states.sensor.load_power.state | float - states.sensor.myenergi_hub_power_charging.state | float }}
+  - name: Grid Power In kW
+    unit_of_measurement: "kW"
+    device_class: power
+    state: >-
+      {{ states.sensor.grid_power_in.state | float / 1000 }}
+  - name: Grid Power Out kW
+    unit_of_measurement: "kW"
+    device_class: power
+    state: >-
+      {{ states.sensor.grid_power_out.state | float / 1000 }}
+  - name: Current Energy Cost
+    unit_of_measurement: "GBP"
+    state: >-
+      {% if states.utility_meter.daily_energy.state == "peak" %}
+        {{ (states.sensor.grid_power_in_kw.state | float * states.sensor.peak_tariff_rate.state | float) | round(2) }}        
+      {% else %}
+        {{ (states.sensor.grid_power_in_kw.state | float * states.sensor.offpeak_tariff_rate.state | float) | round(2) }}
+      {% endif %}
+  - name: "Daily Energy Cost"
+    unit_of_measurement: "GBP"
+    state: >-
+      {{ states.sensor.daily_energy_peak.state | float * states.sensor.peak_tariff_rate.state | float + 
+      states.sensor.daily_energy_offpeak.state | float * states.sensor.offpeak_tariff_rate.state | float }}
+  - name: "Peak Tariff Rate"
+    unit_of_measurement: "GBP/kWh"
+    state: >-
+      0.3984
+  - name: "Offpeak Tariff Rate"
+    unit_of_measurement: "GBP/kWh"
+    state: >-
+      0.075
+  - name: "Daily Peak Energy Cost"
+    unit_of_measurement: "GBP"
+    state: >-
+      {{ (states.sensor.daily_energy_peak.state | float * states.sensor.peak_tariff_rate.state | float) | round(2)  }}
+  - name: "Daily Offpeak Energy Cost"
+    unit_of_measurement: "GBP"
+    state: >-
+      {{ (states.sensor.daily_energy_offpeak.state | float * states.sensor.offpeak_tariff_rate.state | float) | round(2) }}
+  - name: "Daily Export Energy Cost"
+    unit_of_measurement: "GBP"
+    state: >-
+      {{ (states.sensor.daily_export_export.state | float * states.sensor.octopus_go_rate_export.state | float) | round(2) }}
+  - name: "Inverter Max Output"
+    unit_of_measurement: "W"
+    state: >-
+      {% if (states.sensor.battery_state_of_charge.state | float > 20) -%} 
+        {{ 3000 + states.sensor.pv_power.state | float }}
+      {%- else -%}
+        {{ states.sensor.pv_power.state | float }}
+      {%- endif %}
+  - name: "Inverter Max Output Capped"
+    unit_of_measurement: "W"
+    state: >-
+      {% if (states.sensor.inverter_max_output.state | float > 5000) -%} 
+        {{ 5000 }}
+      {%- else -%}
+        {{ states.sensor.inverter_max_output.state }}
+      {%- endif %}
+  - name: "Inverter Utilisation"
+    unit_of_measurement: "%"
+    state: >-
+      {{ (states.sensor.load_power.state | float / states.sensor.inverter_max_output_capped.state | float * 100) | round(0) }}
+  - name: "Inverter Remaining Power"
+    unit_of_measurement: "W"
+    state: >-
+      {{ states.sensor.inverter_max_output_capped.state | float - states.sensor.load_power.state | float }}
