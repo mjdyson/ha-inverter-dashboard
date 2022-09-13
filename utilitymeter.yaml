@@ -1,0 +1,39 @@
+daily_energy:
+  source: sensor.grid_power_sum_in_kwh
+  name: Daily Energy
+  cycle: daily
+  tariffs:
+    - peak
+    - offpeak
+monthly_energy:
+  source: sensor.grid_power_sum_in_kwh
+  name: Monthly Energy
+  cycle: monthly
+  tariffs:
+    - peak
+    - offpeak
+yearly_energy:
+  source: sensor.grid_power_sum_in_kwh
+  name: Yearly Energy
+  cycle: yearly
+  tariffs:
+    - peak
+    - offpeak
+daily_export:
+  source: sensor.grid_export_sum_in_kwh
+  name: Daily Export
+  cycle: daily
+  tariffs:
+    - export
+monthly_export:
+  source: sensor.grid_export_sum_in_kwh
+  name: Monthly Export
+  cycle: monthly
+  tariffs:
+    - export
+yearly_export:
+  source: sensor.grid_export_sum_in_kwh
+  name: Yearly Export
+  cycle: yearly
+  tariffs:
+    - export
