@@ -1,0 +1,147 @@
+- theme: Backend-selected
+    title: NEXUS
+    path: nexus
+    type: custom:grid-layout
+    visible:
+      - user: 9351084beaaa4a93b2ed6f08e0c0ee68
+      - user: 774e92d1a8134ff989db62cc1766578c
+    layout:
+      grid-template-rows: 61% 33%
+      grid-template-columns: 66% 33%
+      grid-template-areas: '"graph quick" "totals quick"'
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Energy Usage
+          - type: custom:sankey-chart
+            show_names: true
+            wide: true
+            height: 313
+            round: 2
+            unit_prefix: k
+            sections:
+              - entities:
+                  - entity_id: sensor.load_power_calc
+                    name: house load
+                    color: grey
+                    children:
+                      - sensor.pv_power
+                      - sensor.battery_power_discharge
+                      - sensor.grid_power_in
+                  - entity_id: sensor.battery_power_charge
+                    color: green
+                    name: battery charging
+                  - entity_id: sensor.myenergi_hub_power_charging
+                    color: blue
+                    name: Tesla charging
+                  - entity_id: sensor.grid_power_out
+                    color: red
+              - entities:
+                  - entity_id: sensor.grid_power_in
+                    name: from grid
+                    color: red
+                  - entity_id: sensor.battery_power_discharge
+                    name: from batteries
+                    color: green
+                  - entity_id: sensor.pv_power
+                    name: from solar
+                    color: orange
+        view_layout:
+          grid-area: graph
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Quick View
+          - type: horizontal-stack
+            cards:
+              - type: custom:bar-card
+                direction: up
+                height: 485px
+                positions:
+                  icon: 'off'
+                  indicator: inside
+                  name: outside
+                severity:
+                  - color: Green
+                    to: '25'
+                    from: '0'
+                  - color: Orange
+                    from: '26'
+                    to: '75'
+                  - color: Red
+                    from: '76'
+                    to: '100'
+                entities:
+                  - entity: sensor.inverter_utilisation
+                    name: Inverter utilisation
+              - type: vertical-stack
+                cards:
+                  - type: custom:vertical-stack-in-card
+                    cards:
+                      - type: entity
+                        entity: sensor.battery_state_of_charge
+                        name: Battery level
+                        state_color: false
+                      - type: entity
+                        entity: sensor.current_energy_cost
+                        name: Cost per hour
+                        icon: mdi:currency-gbp
+                      - type: entity
+                        entity: sensor.time_until_go
+                        name: Off-peak in
+                        icon: mdi:clock-time-eight-outline
+                  - type: custom:gap-card
+                    height: 44
+                  - type: custom:vertical-stack-in-card
+                    cards:
+                      - type: entity
+                        entity: sensor.inverter_max_output_capped
+                        name: Max output
+                        icon: mdi:lightning-bolt-outline
+                      - type: entity
+                        entity: sensor.load_power
+                        icon: mdi:lightning-bolt-outline
+                        name: Current usage
+                      - type: entity
+                        entity: sensor.inverter_remaining_power
+                        name: Watts left
+                        icon: mdi:lightning-bolt-outline
+        view_layout:
+          grid-area: quick
+      - type: vertical-stack
+        cards:
+          - type: custom:mushroom-title-card
+            title: Daily Summary
+          - type: horizontal-stack
+            cards:
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: entity
+                    entity: sensor.daily_peak_energy_cost
+                    icon: mdi:currency-gbp
+                    name: Today's cost (peak)
+                  - type: entity
+                    entity: sensor.daily_energy_peak
+                    name: Today's usage (peak)
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: entity
+                    entity: sensor.daily_offpeak_energy_cost
+                    icon: mdi:currency-gbp
+                    name: Today's cost (off-peak)
+                  - type: entity
+                    entity: sensor.daily_energy_offpeak
+                    name: Today's usage (off-peak)
+              - type: custom:vertical-stack-in-card
+                cards:
+                  - type: entity
+                    entity: sensor.daily_export_energy_cost
+                    icon: mdi:currency-gbp
+                    name: Today's cost (export)
+                  - type: entity
+                    entity: sensor.daily_export_export
+                    name: Today's export
+        view_layout:
+          grid-area: totals
